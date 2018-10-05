@@ -1,0 +1,3 @@
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: PruneService
+projectName: cluster-prune-operator

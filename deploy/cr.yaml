@@ -1,0 +1,155 @@
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: PruneService
+metadata:
+  name: prune
+  namespace: openshift-prune
+spec:
+  managementState: Managed
+  images:
+    keepTagRevisions: 3
+    keepTagYoungerThan: 1h0m0s
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: pod
+  namespace: openshift-prune
+spec:
+  group: ""
+  apiVersion: v1
+  kind: Pod
+  name: pods
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: deploymentconfig
+  namespace: openshift-prune
+spec:
+  group: apps.openshift.io
+  apiVersion: v1
+  kind: DeploymentConfig
+  name: deploymentconfigs
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: deployment
+  namespace: openshift-prune
+spec:
+  group: extensions
+  apiVersion: v1beta1
+  kind: Deployment
+  name: deployments
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: replicationcontroller
+  namespace: openshift-prune
+spec:
+  group: ""
+  apiVersion: v1
+  kind: ReplicationController
+  name: replicationcontrollers
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: daemonset
+  namespace: openshift-prune
+spec:
+  group: extensions
+  apiVersion: v1beta1
+  kind: DaemonSet
+  name: daemonsets
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: replicaset
+  namespace: openshift-prune
+spec:
+  group: extensions
+  apiVersion: v1beta1
+  kind: ReplicaSet
+  name: replicasets
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: build
+  namespace: openshift-prune
+spec:
+  group: build.openshift.io
+  apiVersion: v1
+  kind: Build
+  name: builds
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.strategy.dockerstrategy.from.name}"
+  - "{.spec.strategy.sourcestrategy.from.name}"
+  - "{.spec.strategy.customstrategy.from.name}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: buildconfig
+  namespace: openshift-prune
+spec:
+  group: build.openshift.io
+  apiVersion: v1
+  kind: BuildConfig
+  name: buildconfigs
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.strategy.dockerstrategy.from.name}"
+  - "{.spec.strategy.sourcestrategy.from.name}"
+  - "{.spec.strategy.customstrategy.from.name}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: job
+  namespace: openshift-prune
+spec:
+  group: batch
+  apiVersion: v1
+  kind: Job
+  name: jobs
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: cronjob
+  namespace: openshift-prune
+spec:
+  group: batch
+  apiVersion: v1beta1
+  kind: CronJob
+  name: cronjobs
+  namespaced: true
+  imageFieldSelectors:
+  - "{.spec.jobtemplate.spec.template.spec.containers[*].image}"
