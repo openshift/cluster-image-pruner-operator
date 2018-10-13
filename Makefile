@@ -1,5 +1,5 @@
-IMAGE ?= docker.io/openshift/origin-cluster-prune-operator:latest
-PROG  := cluster-prune-operator
+IMAGE ?= docker.io/openshift/origin-cluster-image-pruner-operator:latest
+PROG  := cluster-image-pruner-operator
 
 .PHONY: all generate build build-image build-devel-image clean
 

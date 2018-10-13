@@ -3,7 +3,7 @@
 package fake
 
 import (
-	v1alpha1 "github.com/openshift/cluster-prune-operator/pkg/apis/prune/v1alpha1"
+	v1alpha1 "github.com/openshift/cluster-image-pruner-operator/pkg/apis/prune/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

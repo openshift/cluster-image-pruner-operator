@@ -17,8 +17,8 @@ import (
 	"k8s.io/client-go/tools/pager"
 	"k8s.io/client-go/util/jsonpath"
 
-	pruneapi "github.com/openshift/cluster-prune-operator/pkg/apis/prune/v1alpha1"
-	pruneclset "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned"
+	pruneapi "github.com/openshift/cluster-image-pruner-operator/pkg/apis/prune/v1alpha1"
+	pruneclset "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned"
 )
 
 type ImageReferenceFunc func(context.Context, *References) error

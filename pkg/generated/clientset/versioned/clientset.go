@@ -3,7 +3,7 @@
 package versioned
 
 import (
-	prunev1alpha1 "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1"
+	prunev1alpha1 "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

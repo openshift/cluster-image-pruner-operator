@@ -3,9 +3,9 @@
 package fake
 
 import (
-	clientset "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned"
-	prunev1alpha1 "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1"
-	fakeprunev1alpha1 "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1/fake"
+	clientset "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned"
+	prunev1alpha1 "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1"
+	fakeprunev1alpha1 "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned/typed/prune/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

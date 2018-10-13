@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/openshift/cluster-prune-operator/pkg/reference"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/reference"
 )
 
 type References struct {

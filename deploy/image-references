@@ -2,7 +2,7 @@ kind: ImageStream
 apiVersion: image.openshift.io/v1
 spec:
   tags:
-  - name: cluster-prune-operator
+  - name: cluster-image-pruner-operator
     from:
       kind: DockerImage
-      name: docker.io/openshift/origin-cluster-prune-operator:latest
+      name: docker.io/openshift/origin-cluster-image-pruner-operator:latest

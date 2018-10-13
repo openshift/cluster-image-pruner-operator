@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: cluster-prune-operator
+  name: cluster-image-pruner-operator

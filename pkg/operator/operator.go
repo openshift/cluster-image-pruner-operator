@@ -13,9 +13,9 @@ import (
 
 	imageclset "github.com/openshift/client-go/image/clientset/versioned"
 
-	pruneclset "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned"
-	"github.com/openshift/cluster-prune-operator/pkg/imagereference"
-	"github.com/openshift/cluster-prune-operator/pkg/prune/imagestream"
+	pruneclset "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/imagereference"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/prune/imagestream"
 )
 
 type Pruner struct {

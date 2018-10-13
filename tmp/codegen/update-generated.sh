@@ -6,7 +6,7 @@ set -o pipefail
 
 vendor/k8s.io/code-generator/generate-groups.sh \
 deepcopy,client \
-github.com/openshift/cluster-prune-operator/pkg/generated \
-github.com/openshift/cluster-prune-operator/pkg/apis \
+github.com/openshift/cluster-image-pruner-operator/pkg/generated \
+github.com/openshift/cluster-image-pruner-operator/pkg/apis \
 prune:v1alpha1 \
 --go-header-file "./tmp/codegen/boilerplate.go.txt"

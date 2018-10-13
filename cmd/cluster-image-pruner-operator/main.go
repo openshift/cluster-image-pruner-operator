@@ -14,8 +14,8 @@ import (
 	"k8s.io/client-go/util/homedir"
 
 	imageclset "github.com/openshift/client-go/image/clientset/versioned"
-	pruneclset "github.com/openshift/cluster-prune-operator/pkg/generated/clientset/versioned"
-	"github.com/openshift/cluster-prune-operator/pkg/operator"
+	pruneclset "github.com/openshift/cluster-image-pruner-operator/pkg/generated/clientset/versioned"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/operator"
 )
 
 const (

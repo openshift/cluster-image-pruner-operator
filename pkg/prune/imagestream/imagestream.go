@@ -16,9 +16,9 @@ import (
 	imageapi "github.com/openshift/api/image/v1"
 	imageclset "github.com/openshift/client-go/image/clientset/versioned"
 
-	pruneapi "github.com/openshift/cluster-prune-operator/pkg/apis/prune/v1alpha1"
-	"github.com/openshift/cluster-prune-operator/pkg/imagereference"
-	"github.com/openshift/cluster-prune-operator/pkg/reference"
+	pruneapi "github.com/openshift/cluster-image-pruner-operator/pkg/apis/prune/v1alpha1"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/imagereference"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/reference"
 )
 
 type Pruner struct {
