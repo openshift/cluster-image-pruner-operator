@@ -18,9 +18,7 @@ metadata:
 spec:
   group: ""
   apiVersion: v1
-  kind: Pod
   name: pods
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.containers[*].image}"
 ---
@@ -32,9 +30,7 @@ metadata:
 spec:
   group: apps.openshift.io
   apiVersion: v1
-  kind: DeploymentConfig
   name: deploymentconfigs
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -46,9 +42,7 @@ metadata:
 spec:
   group: extensions
   apiVersion: v1beta1
-  kind: Deployment
   name: deployments
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -60,9 +54,7 @@ metadata:
 spec:
   group: ""
   apiVersion: v1
-  kind: ReplicationController
   name: replicationcontrollers
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -74,9 +66,7 @@ metadata:
 spec:
   group: extensions
   apiVersion: v1beta1
-  kind: DaemonSet
   name: daemonsets
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -88,9 +78,7 @@ metadata:
 spec:
   group: extensions
   apiVersion: v1beta1
-  kind: ReplicaSet
   name: replicasets
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -102,9 +90,7 @@ metadata:
 spec:
   group: build.openshift.io
   apiVersion: v1
-  kind: Build
   name: builds
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.strategy.dockerstrategy.from.name}"
   - "{.spec.strategy.sourcestrategy.from.name}"
@@ -118,9 +104,7 @@ metadata:
 spec:
   group: build.openshift.io
   apiVersion: v1
-  kind: BuildConfig
   name: buildconfigs
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.strategy.dockerstrategy.from.name}"
   - "{.spec.strategy.sourcestrategy.from.name}"
@@ -134,9 +118,7 @@ metadata:
 spec:
   group: batch
   apiVersion: v1
-  kind: Job
   name: jobs
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
@@ -148,8 +130,6 @@ metadata:
 spec:
   group: batch
   apiVersion: v1beta1
-  kind: CronJob
   name: cronjobs
-  namespaced: true
   imageFieldSelectors:
   - "{.spec.jobtemplate.spec.template.spec.containers[*].image}"
