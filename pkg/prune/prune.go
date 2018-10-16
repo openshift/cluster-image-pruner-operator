@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/glog"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	metaapi "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -173,10 +174,16 @@ func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream,
 	}
 
 	if isEmpty {
-		// TODO(legion) delete imagestream
-		glog.Infof("delete imagestream %s", namedRef.String())
+		if glog.V(4) {
+			glog.Infof("delete imagestream %s", namedRef.String())
+		}
 
-		errChan <- nil
+		uid := is.GetUID()
+
+		err := p.ImageClient.Image().ImageStreams(is.GetNamespace()).Delete(namedRef.String(), &metaapi.DeleteOptions{
+			Preconditions: &metaapi.Preconditions{UID: &uid},
+		})
+		errChan <- err
 		return
 	}
 
@@ -188,7 +195,9 @@ func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream,
 				tags = append(tags, is.Status.Tags[i])
 			} else {
 				namedRef.Tag = is.Status.Tags[i].Tag
-				glog.Infof("prune tag %s", namedRef.String())
+				if glog.V(4) {
+					glog.Infof("prune tag %s", namedRef.String())
+				}
 			}
 		}
 
@@ -199,10 +208,14 @@ func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream,
 	if isChanged {
 		namedRef.Tag = ""
 
-		// TODO(legion) update imagestream
-		glog.Infof("update imagestream %s:", namedRef.String())
+		if glog.V(4) {
+			glog.Infof("update imagestream %s", namedRef.String())
+		}
 
-		errChan <- nil
+		_, err := p.ImageClient.Image().ImageStreams(is.GetNamespace()).UpdateStatus(is)
+
+		errChan <- err
+		return
 	}
 
 	errChan <- nil
@@ -246,7 +259,7 @@ func (p *Pruner) Run(ctx context.Context) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("unable to process imagestreams: %s", err)
+		return fmt.Errorf("unable to prune imagestreams: %s", err)
 	}
 
 	interupt := false
@@ -286,18 +299,30 @@ func (p *Pruner) Run(ctx context.Context) error {
 		},
 		func(o runtime.Object) error {
 			image := o.(*imageapi.Image)
-			if _, ok := referencedImages[image.GetName()]; ok {
+			imageName := image.GetName()
+
+			if _, ok := referencedImages[imageName]; ok {
 				return nil
 			}
 
-			glog.Infof("delete image %s:", image.GetName())
+			if glog.V(4) {
+				glog.Infof("delete image %s:", imageName)
+			}
 
+			uid := image.GetUID()
+
+			err := p.ImageClient.Image().Images().Delete(imageName, &metaapi.DeleteOptions{
+				Preconditions: &metaapi.Preconditions{UID: &uid},
+			})
+			if !errors.IsNotFound(err) {
+				return err
+			}
 			return nil
 		},
 	)
 
 	if err != nil {
-		return fmt.Errorf("unable to process images: %s", err)
+		return fmt.Errorf("unable to prune images: %s", err)
 	}
 
 	glog.Infof("images pruning done")
