@@ -7,16 +7,15 @@ import (
 
 	"github.com/golang/glog"
 
-	"k8s.io/apimachinery/pkg/api/meta"
 	metaapi "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/tools/pager"
 
 	imageapi "github.com/openshift/api/image/v1"
 	imageclset "github.com/openshift/client-go/image/clientset/versioned"
 
 	pruneapi "github.com/openshift/cluster-image-pruner-operator/pkg/apis/prune/v1alpha1"
 	"github.com/openshift/cluster-image-pruner-operator/pkg/imagereference"
+	"github.com/openshift/cluster-image-pruner-operator/pkg/pager"
 	"github.com/openshift/cluster-image-pruner-operator/pkg/reference"
 )
 
@@ -133,7 +132,7 @@ func (p *Pruner) pruneTag(ctx context.Context, is *imageapi.ImageStream, index i
 	}
 }
 
-func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream, imageChan chan string) {
+func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream, imageChan chan string, errChan chan error) {
 	namedRef := &reference.Image{
 		Name:      is.GetName(),
 		Namespace: is.GetNamespace(),
@@ -176,6 +175,8 @@ func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream,
 	if isEmpty {
 		// TODO(legion) delete imagestream
 		glog.Infof("delete imagestream %s", namedRef.String())
+
+		errChan <- nil
 		return
 	}
 
@@ -200,7 +201,11 @@ func (p *Pruner) pruneImageStream(ctx context.Context, is *imageapi.ImageStream,
 
 		// TODO(legion) update imagestream
 		glog.Infof("update imagestream %s:", namedRef.String())
+
+		errChan <- nil
 	}
+
+	errChan <- nil
 }
 
 func (p *Pruner) Run(ctx context.Context) error {
@@ -210,76 +215,86 @@ func (p *Pruner) Run(ctx context.Context) error {
 
 	glog.Infof("imagestreams pruning ...")
 
-	listObj, err := pager.New(func(ctx context.Context, opts metaapi.ListOptions) (runtime.Object, error) {
-		select {
-		case <-ctx.Done():
-			return nil, nil
-		default:
-		}
-		return p.ImageClient.Image().ImageStreams(metaapi.NamespaceAll).List(opts)
-	}).List(ctx, metaapi.ListOptions{})
-
-	if err != nil {
-		return fmt.Errorf("unable to fetch imagestreams: %s", err)
-	}
-
 	n := 0
 
-	quit := make(chan struct{})
+	errChan := make(chan error)
 	imageChan := make(chan string)
 
-	err = meta.EachListItem(listObj, func(o runtime.Object) error {
-		is := o.(*imageapi.ImageStream)
+	opts := metaapi.ListOptions{
+		Limit: 300,
+	}
 
-		n++
-		go func(is *imageapi.ImageStream) {
-			p.pruneImageStream(ctx, is, imageChan)
-			quit <- struct{}{}
-		}(is)
+	err := pager.EachListItem(ctx, opts,
+		func(opts metaapi.ListOptions) (runtime.Object, error) {
+			select {
+			case <-ctx.Done():
+				return nil, nil
+			default:
+			}
+			return p.ImageClient.Image().ImageStreams(metaapi.NamespaceAll).List(opts)
+		},
+		func(o runtime.Object) error {
+			is := o.(*imageapi.ImageStream)
 
-		return nil
-	})
+			n++
+			go func(is *imageapi.ImageStream) {
+				p.pruneImageStream(ctx, is, imageChan, errChan)
+			}(is)
+
+			return nil
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("unable to process imagestreams: %s", err)
 	}
 
+	interupt := false
 	referencedImages := map[string]struct{}{}
 
 	for n != 0 {
 		select {
-		case imageName := <- imageChan:
+		case imageName := <-imageChan:
 			referencedImages[imageName] = struct{}{}
-		case <-quit:
+		case err := <-errChan:
+			if err != nil {
+				glog.Errorf("imagestreams pruning failed: %s", err)
+				interupt = true
+			}
 			n--
 		}
 	}
 
-	glog.Infof("imagestreams pruning done")
-
-	listObj, err = pager.New(func(ctx context.Context, opts metaapi.ListOptions) (runtime.Object, error) {
-		select {
-		case <-ctx.Done():
-			return nil, nil
-		default:
-		}
-		return p.ImageClient.Image().Images().List(opts)
-	}).List(ctx, metaapi.ListOptions{})
-
-	if err != nil {
-		return fmt.Errorf("unable to fetch images: %s", err)
+	if interupt {
+		return fmt.Errorf("imagestreams pruning aborted due to imagestream update errors")
 	}
 
-	err = meta.EachListItem(listObj, func(o runtime.Object) error {
-		image := o.(*imageapi.Image)
-		if _, ok := referencedImages[image.GetName()]; ok {
+	glog.Infof("imagestreams pruning done")
+
+	opts = metaapi.ListOptions{
+		Limit: 300,
+	}
+
+	err = pager.EachListItem(ctx, opts,
+		func(opts metaapi.ListOptions) (runtime.Object, error) {
+			select {
+			case <-ctx.Done():
+				return nil, nil
+			default:
+			}
+			return p.ImageClient.Image().Images().List(opts)
+		},
+		func(o runtime.Object) error {
+			image := o.(*imageapi.Image)
+			if _, ok := referencedImages[image.GetName()]; ok {
+				return nil
+			}
+
+			glog.Infof("delete image %s:", image.GetName())
+
 			return nil
-		}
-
-		glog.Infof("delete image %s:", image.GetName())
-
-		return nil
-	})
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("unable to process images: %s", err)
