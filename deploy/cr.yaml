@@ -20,6 +20,7 @@ spec:
   apiVersion: v1
   name: pods
   imageFieldSelectors:
+  - "{.spec.initcontainers[*].image}"
   - "{.spec.containers[*].image}"
 ---
 apiVersion: prune.operator.openshift.io/v1alpha1
@@ -67,6 +68,18 @@ spec:
   group: extensions
   apiVersion: v1beta1
   name: daemonsets
+  imageFieldSelectors:
+  - "{.spec.template.spec.containers[*].image}"
+---
+apiVersion: prune.operator.openshift.io/v1alpha1
+kind: ImageReference
+metadata:
+  name: statefulset
+  namespace: openshift-prune
+spec:
+  group: extensions
+  apiVersion: v1beta1
+  name: statefulsets
   imageFieldSelectors:
   - "{.spec.template.spec.containers[*].image}"
 ---
